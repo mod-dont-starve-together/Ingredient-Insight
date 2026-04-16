@@ -281,6 +281,25 @@ function RecipeBoard:Clear()
     self.recipe_items = {}
 end
 
+function RecipeBoard:OnMouseButton(button, down, x, y)
+    if not self.shown then
+        return false
+    end
+
+    local hud_entity = TheInput and TheInput:GetHUDEntityUnderMouse() or nil
+    local hovered_widget = hud_entity and hud_entity.widget or nil
+
+    if hovered_widget and self.prev_button and IsWidgetOrDescendant(hovered_widget, self.prev_button) then
+        return true
+    end
+
+    if hovered_widget and self.next_button and IsWidgetOrDescendant(hovered_widget, self.next_button) then
+        return true
+    end
+
+    return false
+end
+
 function RecipeBoard:OnDestroy()
     self:Clear()
     RecipeBoard._base.OnDestroy(self)
