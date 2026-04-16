@@ -154,7 +154,7 @@ end
 function RecipeBoard:SetHoveredRecipe(recipe_data)
     self.selected_recipe_name = BuildDisplayName(recipe_data)
     if self.selected_recipe_name ~= "" then
-        self.selected_text:SetString("Hover: " .. self.selected_recipe_name)
+        self.selected_text:SetString(self.selected_recipe_name)
         self.selected_text:Show()
     else
         self.selected_text:Hide()
@@ -210,9 +210,6 @@ function RecipeBoard:ShowPage(page_num)
             if icon_widget then
                 icon_widget:SetScale(ICON_SIZE / 64)
                 icon_widget.recipe_data = recipe_data
-                icon_widget:SetOnClick(function()
-                    self:SetHoveredRecipe(recipe_data)
-                end)
 
                 local old_gain = icon_widget.OnGainFocus
                 icon_widget.OnGainFocus = function(btn)

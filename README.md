@@ -8,7 +8,7 @@ A Don't Starve Together mod that displays available recipes when hovering over i
 
 ## Features
 
-- **Smart Recipe Display**: Hold **Alt** and hover over an inventory item to see all available recipes
+- **Smart Recipe Display**: Hover over an inventory item to see all available recipes
 - **Interactive Recipe Grid**: View up to 8 recipes per page (4×2 grid layout) with large 60×60 pixel icons
 - **Easy Navigation**: Use **Left/Right** navigation buttons to browse multiple pages
 - **Item Name Display**: Hover over recipe icons to display the item's name with large, readable text (40pt)
@@ -30,9 +30,8 @@ A Don't Starve Together mod that displays available recipes when hovering over i
 ## Usage
 
 ### Viewing Recipes
-1. Open your inventory with Alt held
-2. Hover over any item in your inventory
-3. The recipe board will appear showing all recipes that use this item as an ingredient
+1. Hover over any item in your inventory
+2. The recipe board will appear showing all recipes that use this item as an ingredient
 
 ### Navigating Pages
 - Click **Left Arrow** button to view previous recipes
@@ -52,10 +51,8 @@ A Don't Starve Together mod that displays available recipes when hovering over i
 - Button Scale: 0.62 for visual consistency
 
 **Key Input Handling**:
-- Alt key detection (supports KEY_ALT, KEY_LALT, KEY_RALT)
-- Primary click detection (CONTROL_PRIMARY, CONTROL_ACCEPT, CONTROL_ACTION)
-- Dual-layer input routing (itemtile focus + global hoverer handler)
-- Click deduplication via press/release gating to prevent double-triggering
+- Hover-driven display based on inventory item focus
+- Primary click only used by the recipe board's own pagination buttons
 
 **Performance**:
 - Caches recipes on startup (one-time operation)
@@ -75,18 +72,17 @@ Currently, the mod uses default settings. To customize, edit values in:
 
 ## Troubleshooting
 
-### Board not appearing when Alt held
+### Board not appearing on hover
 - Verify the mod is enabled in mod settings
 - Check the server logs for LUA errors
 - Ensure you're hovering directly over an inventory item
 
 ### Page buttons not responding
 - Try clicking slightly to the left or right of the button
-- Make sure Alt is being held while clicking
 - Check that the recipe list has multiple pages
 
 ### Double page turns on single click
-- This should not occur in v1.0.0; if it does, verify modmain.lua has the `TryHandleBoardPaging()` helper
+- This should not occur in the current implementation; if it does, verify the board buttons are not being bound twice
 
 ## Architecture
 
@@ -94,8 +90,7 @@ Currently, the mod uses default settings. To customize, edit values in:
 
 **modmain.lua** (Main Module)
 - Recipe cache building from `AllRecipes` table
-- Input handling (Alt key detection, primary click interception)
-- Widget class hooking (itemtile and hoverer modifications)
+- Hover handling on inventory item tiles
 - Board lifecycle management (show/hide based on hover state)
 
 **scripts/widgets/recipeboard.lua** (UI Widget)
@@ -106,18 +101,16 @@ Currently, the mod uses default settings. To customize, edit values in:
 
 ### Input Routing Architecture
 
-1. **Itemtile Focus Layer**: Handles input when cursor is directly over inventory item
+1. **Itemtile Focus Layer**: Handles hover when cursor is directly over inventory item
    - Visibility trigger point for recipe board
-   - Primary click interception for pagination
 
-2. **Hoverer Global Layer**: Persistent HUD input handler
-   - Allows pagination without losing focus
-   - Global input capture when board is active
+2. **Recipe Board Layer**: Owns pagination and hover name display
+   - Prev/next buttons handle page changes locally
+   - Hover over recipe icons to show the selected item name
 
-3. **Deduplication Mechanism**: `TryHandleBoardPaging()` helper
-   - Press phase: Resets `_ii_click_processed` flag
-   - Release phase: Only first handler executes, subsequent handlers no-op
-   - Prevents same click event from triggering multiple page turns
+3. **Hover Transfer Grace**: short delay between item and board
+   - Keeps the board alive while moving the cursor from item to board
+   - Prevents flicker during hover transitions
 
 ## Requirements
 
@@ -138,7 +131,6 @@ Currently, the mod uses default settings. To customize, edit values in:
 - Initial release with full recipe viewing functionality
 - Fixed hover detection for nested widgets
 - Implemented grace timer for smooth transitions
-- Added dual-layer input routing with deduplication
 - Ensured strict-mode compatibility with local variables
 
 ## Author
